@@ -23,10 +23,6 @@ export default registerAs('config', () => ({
     corsEnabled: process.env.CORS_ENABLED == '1' ? true : false,
     corsCredentials: process.env.CORS_CREDENTIALS == '1' ? true : false,
   },
-  swagger: {
-    path: process.env.SWAGGER_PATH || 'docs',
-    enabled: process.env.SWAGGER_ENABLED.toLowerCase() === 'true',
-  },
   params: {},
   services: {},
   postgres: {

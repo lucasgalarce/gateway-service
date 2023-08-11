@@ -24,3 +24,7 @@ Install YARN packages
 yarn install
 yarn start:dev
 ```
+
+Also, you need to run the other [admin-service](https://github.com/lucasgalarce/admin-service) repository.
+
+And in the postman folder you have a file to import into the Postman app

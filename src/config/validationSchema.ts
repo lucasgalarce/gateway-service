@@ -10,8 +10,6 @@ export const validationSchema = Joi.object({
   ALLOWED_METHODS: Joi.string().required(),
   CORS_ENABLED: Joi.string().required(),
   CORS_CREDENTIALS: Joi.string().required(),
-  SWAGGER_PATH: Joi.string().required(),
-  SWAGGER_ENABLED: Joi.string().required(),
   DB_HOST: Joi.string().required(),
   DB_PORT: Joi.string().required(),
   DB_USER: Joi.string().required(),

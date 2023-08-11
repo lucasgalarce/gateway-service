@@ -1,11 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import helmet from 'helmet';
-import * as swaggerStats from 'swagger-stats';
 
 import { AppModule } from './app.module';
 
@@ -16,7 +14,7 @@ async function bootstrap() {
   });
 
   const appConfig = app.get<ConfigService>(ConfigService)['internalConfig']['config'];
-  const { server, swagger, project } = appConfig;
+  const { server, project } = appConfig;
   const port = parseInt(server.port, 10) || 8080;
 
   app.setGlobalPrefix(`${server.context}`);
@@ -36,28 +34,6 @@ async function bootstrap() {
     }),
   );
 
-  if (swagger.enabled) {
-    const config = new DocumentBuilder()
-      .setTitle(`${project.name}`)
-      .setVersion(`${project.version}`)
-      .setDescription(`Swagger - ${project.description}`)
-      .setExternalDoc('Documentation', project.homepage)
-      .setContact(project.author.name, project.author.url, project.author.email)
-      .addServer(`/${server.context}`)
-      .build();
-    const document = SwaggerModule.createDocument(app, config, {
-      ignoreGlobalPrefix: true,
-    });
-    app.use(
-      swaggerStats.getMiddleware({
-        name: project.name,
-        version: project.version,
-        swaggerSpec: document,
-      }),
-    );
-    SwaggerModule.setup(`${server.context}/${swagger.path}`, app, document, {});
-  }
-
   if (server.corsEnabled) {
     app.enableCors({
       origin: server.origins,
@@ -69,11 +45,6 @@ async function bootstrap() {
 
   await app.listen(port, async () => {
     const appServer = `http://localhost:${port}/${server.context}`;
-    Logger.log(`📚 Swagger is running on: ${appServer}/${swagger.path}`, `${project.name}`);
-    Logger.log(
-      `📚 Swagger Stats is running on: http://localhost:${port}/swagger-stats`,
-      `${project.name}`,
-    );
     Logger.log(`🚀 Application is running on: ${appServer}`, `${project.name}`);
   });
 }
