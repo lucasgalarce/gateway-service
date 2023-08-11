@@ -6,23 +6,22 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import helmet from 'helmet';
 import * as swaggerStats from 'swagger-stats';
-import { json } from 'express';
 
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new Logger(),
+    bodyParser: false,
   });
 
-  const appConfig =
-    app.get<ConfigService>(ConfigService)['internalConfig']['config'];
+  const appConfig = app.get<ConfigService>(ConfigService)['internalConfig']['config'];
   const { server, swagger, project } = appConfig;
   const port = parseInt(server.port, 10) || 8080;
 
   app.setGlobalPrefix(`${server.context}`);
 
-  app.use([cookieParser(), helmet(), compression(), json()]);
+  app.use([cookieParser(), helmet(), compression()]);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -70,10 +69,7 @@ async function bootstrap() {
 
   await app.listen(port, async () => {
     const appServer = `http://localhost:${port}/${server.context}`;
-    Logger.log(
-      `📚 Swagger is running on: ${appServer}/${swagger.path}`,
-      `${project.name}`,
-    );
+    Logger.log(`📚 Swagger is running on: ${appServer}/${swagger.path}`, `${project.name}`);
     Logger.log(
       `📚 Swagger Stats is running on: http://localhost:${port}/swagger-stats`,
       `${project.name}`,

@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -35,6 +35,6 @@ import { JwtStrategy } from './modules/auth/strategy/jwt.strategy';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ProxyMiddleware).forRoutes('*'); // Aplícalo a todas las rutas, pero puedes especificar rutas concretas si lo prefieres
+    consumer.apply(ProxyMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }
