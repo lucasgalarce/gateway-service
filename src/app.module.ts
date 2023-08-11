@@ -1,16 +1,13 @@
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostgresModule } from './database/postgres/postgres.module';
 import { config, environments, validationSchema } from './config';
-import { UtilsModule } from './utils/utils.module';
 
-import { AuthModule } from './modules/auth/auth.module';
 import { ProxyMiddleware } from './middlewares/proxy.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './modules/auth/strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -22,16 +19,20 @@ import { JwtStrategy } from './modules/auth/strategy/jwt.strategy';
       validationSchema,
     }),
     PostgresModule,
-    UtilsModule,
-    AuthModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: 'SECRET', // Deberías usar una clave secreta más segura y no hardcodearla
-      signOptions: { expiresIn: '60h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: configService.get<string>('TOKEN_EXPIRES_IN'),
+        },
+      }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, JwtStrategy],
+  providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
